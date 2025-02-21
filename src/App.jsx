@@ -1,26 +1,74 @@
-import React from "react";
+import React, { useEffect } from "react";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import { useAuth } from "./context/AuthContext";
+import api from "./services/api";
 import { Routes, Route, Link } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./components/Home";
-import Announcements from "./components/Announcements";
-import Courses from "./components/Courses";
-import Students from "./components/Students";
-import AddStudent from "./components/AddStudent";
-import Logout from "./components/Logout";
+import Profile from "./pages/Profile";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import Home from "./pages/Home";
+import Announcements from "./pages/Announcements";
+import Courses from "./pages/Courses";
+import Students from "./pages/Students";
+import AddStudent from "./pages/AddStudent";
+import AdminDashboard from "./pages/AdminDashboard";
+import TutorDashboard from "./pages/TutorDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import Unauthorized from "./pages/Unauthorized";
+import "./styles/Navbar.css";
+import "./styles/Footer.css";
 
 function App() {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (user) {
+          // Fetch initial data based on user role
+          if (user.role === 'admin') {
+            await api.get('/users/');
+            await api.get('/announcements/');
+          } else if (user.role === 'tutor') {
+            await api.get('/courses/');
+          } else if (user.role === 'student') {
+            await api.get('/announcements/');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+      }
+    };
+
+    if (!loading) {
+      fetchData();
+    }
+  }, [user, loading]);
+
   return (
     <div className="container">
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/announcements">Announcements</Link>
-        <Link to="/courses">Courses</Link>
-        <Link to="/students">Students</Link>
-        <Logout />
-      </nav>
-
+      <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/tutor" element={
+          <ProtectedRoute requiredRole="tutor">
+            <TutorDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/student" element={
+          <ProtectedRoute requiredRole="student">
+            <StudentDashboard />
+          </ProtectedRoute>
+        } />
         <Route path="/announcements" element={
           <ProtectedRoute requiredRole="admin">
             <Announcements />
@@ -41,7 +89,14 @@ function App() {
             <AddStudent />
           </ProtectedRoute>
         } />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
       </Routes>
+      <Footer />
     </div>
   );
 }

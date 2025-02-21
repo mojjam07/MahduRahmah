@@ -1,29 +1,32 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Login.css';
-
+import { useNavigate } from 'react-router-dom';
+// import '../styles/Login.css';
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
-  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     
-    // Basic validation
-    if (!username || !password) {
-      setError('Please fill in all fields');
-      return;
+    try {
+      const response = await login({ username, password });
+      if (response) {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      setError('Invalid username or password');
+    } finally {
+      setLoading(false);
     }
-
-    // TODO: Implement actual authentication
-    login(role, { username, password });
-    navigate('/');
   };
 
   return (
@@ -38,9 +41,10 @@ function Login() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
-
+        
         <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input
@@ -49,25 +53,15 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
-
-        <div className="form-group">
-          <label htmlFor="role">Role:</label>
-          <select
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="student">Student</option>
-            <option value="tutor">Tutor</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-
+        
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+        
         {error && <div className="error-message">{error}</div>}
-
-        <button type="submit">Login</button>
       </form>
     </div>
   );
