@@ -1,44 +1,56 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 // import '../styles/Register.css';
 
 function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirm_password: '',
-    phone_number: '',
-    date_of_birth: '',
-    role: 'student'
+    username: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+    phone_number: "",
+    date_of_birth: "",
+    role: "student",
   });
-  
-  const [error, setError] = useState('');
+
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+  };
+
+  const validateFormData = () => {
+    if (formData.password !== formData.confirm_password) {
+      throw new Error("Passwords do not match");
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      throw new Error("Invalid email format");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
-    
+
     try {
+      validateFormData(); // Validate form data before submission
+
       const response = await register(formData);
       if (response) {
-        navigate('/dashboard');
+        const userRole = formData.role; // Use the selected role from the form data
+        navigate(`/${userRole.toLowerCase()}-dashboard`); // Redirect based on role
       }
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      setError(error.message); // Display specific error message
     } finally {
       setLoading(false);
     }
@@ -60,7 +72,7 @@ function Register() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
@@ -73,7 +85,7 @@ function Register() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input
@@ -86,7 +98,7 @@ function Register() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="confirm_password">Confirm Password:</label>
           <input
@@ -99,7 +111,7 @@ function Register() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="phone_number">Phone Number:</label>
           <input
@@ -113,7 +125,7 @@ function Register() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="date_of_birth">Date of Birth:</label>
           <input
@@ -125,7 +137,7 @@ function Register() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="role">Role:</label>
           <select
@@ -140,11 +152,11 @@ function Register() {
             <option value="admin">Admin</option>
           </select>
         </div>
-        
+
         <button type="submit" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
+          {loading ? "Registering..." : "Register"}
         </button>
-        
+
         {error && <div className="error-message">{error}</div>}
       </form>
     </div>

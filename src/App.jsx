@@ -89,6 +89,7 @@ function App() {
             <AddStudent />
           </ProtectedRoute>
         } />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/profile" element={
           <ProtectedRoute>

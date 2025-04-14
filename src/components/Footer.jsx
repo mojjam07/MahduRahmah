@@ -10,6 +10,7 @@ function Footer() {
           <a href="/about">About</a>
           <a href="/contact">Contact</a>
           <a href="/privacy">Privacy Policy</a>
+          <a href="/blog">Blog</a>
         </div>
       </div>
     </footer>

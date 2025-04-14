@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
-
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -19,8 +18,6 @@ export function AuthProvider({ children }) {
 
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -43,25 +40,39 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (userData) => {
     try {
-      setUser(userData.user);
-      localStorage.setItem('user', JSON.stringify(userData.user));
-      localStorage.setItem('token', userData.token);
-      api.defaults.headers.common['Authorization'] = `Token ${userData.token}`;
-      // Redirect to appropriate dashboard based on role
-      if (userData.user.role === 'admin') {
+      const response = await api.post('/login/', userData);
+      setUser(response.data.user);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+
+      api.defaults.headers.common['Authorization'] = `Token ${response.data.token}`;
+      // Redirect to appropriate dashboard based on role after successful login
+      if (response.data.user.role === 'admin') {
         navigate('/admin');
-      } else if (userData.user.role === 'tutor') {
+      } else if (response.data.user.role === 'tutor') {
         navigate('/tutor');
-      } else if (userData.user.role === 'student') {
+      } else if (response.data.user.role === 'student') {
         navigate('/student');
       }
-
     } catch (error) {
       throw error;
     }
   }, [navigate]);
 
-
+  const register = useCallback(async (userData) => {
+    try {
+      const response = await api.post('/register/', userData);
+      if (response.data.user) {
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('token', response.data.token);
+        api.defaults.headers.common['Authorization'] = `Token ${response.data.token}`;
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }, [navigate]);
 
   const logout = useCallback(async () => {
     try {
@@ -75,7 +86,6 @@ export function AuthProvider({ children }) {
     }
   }, [navigate]);
 
-
   const updateProfile = useCallback(async (profileData) => {
     try {
       const response = await api.put('/profile/', profileData);
@@ -87,12 +97,11 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-
-
   const value = {
     user,
     isAuthenticated: !!user,
     login,
+    register,
     logout,
     loading,
     updateProfile
@@ -100,8 +109,6 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-
-
       {children}
     </AuthContext.Provider>
   );
