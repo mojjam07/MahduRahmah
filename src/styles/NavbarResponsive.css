@@ -5,6 +5,8 @@
   padding: 1rem;
   background-color: #333;
   color: white;
+  position: relative;
+  z-index: 10000;
 }
 
 .navbar-logo {
@@ -71,11 +73,15 @@
     left: 0;
     right: 0;
     background-color: #333;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1rem;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.5rem 1rem;
     gap: 1rem;
     display: none;
+    overflow-x: visible;
+    white-space: normal;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .navbar-links.active {
@@ -85,5 +91,36 @@
   .language-switcher {
     margin-right: 0;
     margin-bottom: 1rem;
+  }
+
+  /* Make dropdown menu top level in mobile */
+  .profile-dropdown {
+    position: relative;
+    width: 100%;
+  }
+
+  .profile-dropdown .dropdown-menu {
+    position: fixed;
+    top: 70px;
+    right: 0;
+    background-color: #444;
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    border-radius: 0 0 8px 8px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-dropdown .dropdown-menu a {
+    padding: 12px 16px;
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid #555;
+  }
+
+  .profile-dropdown .dropdown-menu a:hover {
+    background-color: #555;
   }
 }

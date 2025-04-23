@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import "../styles/Navbar.css";
 import "../styles/NavbarResponsive.css";
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/react.svg";
 
-function Navbar() {
+function Navbar({ openLoginModal, openSignupModal }) {
   const { user, logout } = useAuth();
   const [language, setLanguage] = useState("en");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -42,22 +41,22 @@ function Navbar() {
         ☰
       </button>
       <div className="navbar-brand">
-        <Link to="/">
+        <a href="/">
           <img src={logo} alt="Mahdu Rahmah Logo" className="navbar-logo" />
-        </Link>
+        </a>
       </div>
       <div className="navbar-links">
         {user && (
           <>
             {user.role === "admin" && (
               <>
-                <Link to="/announcements">Announcements</Link>
-                <Link to="/students">Students</Link>
+                <a href="/announcements">Announcements</a>
+                <a href="/students">Students</a>
               </>
             )}
-            {user.role === "tutor" && <Link to="/courses">Courses</Link>}
+            {user.role === "tutor" && <a href="/courses">Courses</a>}
             {user.role === "student" && (
-              <Link to="/announcements">Announcements</Link>
+              <a href="/announcements">Announcements</a>
             )}
             <div className="profile-dropdown">
               <button
@@ -76,8 +75,8 @@ function Navbar() {
               </button>
               {showDropdown && (
                 <div className="dropdown-menu">
-                  <Link to="/profile">Profile</Link>
-                  <Link to="/logout">Logout</Link>
+                  <a href="/profile">Profile</a>
+                  <a href="/logout">Logout</a>
                 </div>
               )}
             </div>
@@ -99,12 +98,28 @@ function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/login" className="login-button">
+            <button
+              type="button"
+              className="login-button"
+              onClick={() => {
+                console.log("Login button clicked");
+                openLoginModal(true);
+              }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#007bff", padding: "4px 8px", marginRight: "10px" }}
+            >
               {translations[language].login}
-            </Link>
-            <Link to="/register" className="signup-button">
+            </button>
+            <button
+              type="button"
+              className="signup-button"
+              onClick={() => {
+                console.log("Signup button clicked");
+                openSignupModal(true);
+              }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#007bff", padding: "4px 8px" }}
+            >
               {translations[language].signup}
-            </Link>
+            </button>
           </>
         )}
       </div>

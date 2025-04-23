@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Login from "./Login";
+import Register from "./Register";
+import "../styles/Modal.css";
 
 function MainDashboard() {
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+
+  const openLoginModal = () => {
+    setShowLoginModal(true);
+    setShowSignupModal(false);
+  };
+
+  const openSignupModal = () => {
+    setShowSignupModal(true);
+    setShowLoginModal(false);
+  };
+
+  const closeModals = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(false);
+  };
+
   return (
     <div className="page-container">
-      <Navbar />
+      <Navbar
+        openLoginModal={openLoginModal}
+        openSignupModal={openSignupModal}
+        showLoginModal={showLoginModal}
+        showSignupModal={showSignupModal}
+      />
       <div
         className="dashboard"
         style={{
@@ -104,6 +130,18 @@ function MainDashboard() {
         </div>
       </div>
       <Footer />
+
+      {(showLoginModal || showSignupModal) && (
+        <div className="modal-overlay" onClick={closeModals}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            {showLoginModal && <Login />}
+            {showSignupModal && <Register />}
+            <button className="modal-close-button" onClick={closeModals}>
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
